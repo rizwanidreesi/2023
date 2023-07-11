@@ -90,7 +90,7 @@ const adminSchema = new mongoose.Schema(
 );
 
 // Encrypting password before saving user
-userSchema.pre("save", async function (next) {
+adminSchema.pre("save", async function (next) {
   if (!this.isModified("password")) {
     next();
   }
@@ -98,7 +98,7 @@ userSchema.pre("save", async function (next) {
 });
 
 // check if password is correct
-userSchema.methods.correctPassword = async function (
+adminSchema.methods.correctPassword = async function (
   candidatePassword,
   userPassword
 ) {
@@ -106,14 +106,14 @@ userSchema.methods.correctPassword = async function (
 };
 
 // Return JWT token on successful login
-userSchema.methods.getJwtToken = function () {
+adminSchema.methods.getJwtToken = function () {
   return jwt.sign({ id: this._id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_TIME,
   });
 };
 
 // Generate password reset token
-userSchema.methods.getResetPasswordToken = function () {
+adminSchema.methods.getResetPasswordToken = function () {
   // Generate token
   const resetToken = crypto.randomBytes(20).toString("hex");
 
@@ -128,4 +128,4 @@ userSchema.methods.getResetPasswordToken = function () {
   return resetToken;
 };
 
-module.exports = mongoose.model("Admin", userSchema);
+module.exports = mongoose.model("Admin", adminSchema);

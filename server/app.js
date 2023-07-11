@@ -13,9 +13,11 @@ app.use(fileUpload());
 
 
 // importing all routes
+const adminRouter = require('./routes/adminRoutes');
 
 
 // app.use('/api/v1/admins', auth);
+app.use('/api/v1/admins', adminRouter);
 
 
 
