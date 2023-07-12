@@ -16,10 +16,13 @@ app.use(fileUpload());
 
 // importing all routes
 const adminRouter = require('./routes/adminRoutes');
+const studentRouter = require('./routes/studentRoutes');
 
 
 // app.use('/api/v1/admins', auth);
 app.use('/api/v1/admins', adminRouter);
+app.use('/api/v1/students', studentRouter);
+
 
 
 // error handling middleware
