@@ -100,9 +100,9 @@ adminSchema.pre("save", async function (next) {
 // check if password is correct
 adminSchema.methods.correctPassword = async function (
   candidatePassword,
-  userPassword
+  adminPassword
 ) {
-  return await bcrypt.compare(candidatePassword, userPassword);
+  return await bcrypt.compare(candidatePassword, adminPassword);
 };
 
 // Return JWT token on successful login

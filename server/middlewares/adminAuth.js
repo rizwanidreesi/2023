@@ -4,7 +4,7 @@ const ErrorHandler = require('../utils/errorHandler');
 const catchAsyncErrors = require('./catchAsyncErrors');
 
 // Checks if the admin is authenticated
-exports.isAuthenticatedUser = catchAsyncErrors(async (req, res, next) => {
+exports.isAuthenticatedAdmin = catchAsyncErrors(async (req, res, next) => {
 
     const { token } = req.cookies;
     if (!token) {
@@ -12,15 +12,15 @@ exports.isAuthenticatedUser = catchAsyncErrors(async (req, res, next) => {
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = await Admin.findById(decoded.id);
+    req.admin = await Admin.findById(decoded.id);
     next();
 });
 
-// Handling user roles
+// Handling admin roles
 exports.authorizeRoles = (...roles) => {
     return (req, res, next) => {
-        if (!roles.includes(req.user.role)) {
-            return next(new ErrorHandler(`You are not (${req.user.role}) authorized to access this resource.`, 403));
+        if (!roles.includes(req.admin.role)) {
+            return next(new ErrorHandler(`You are not (${req.admin.role}) authorized to access this resource.`, 403));
         }
         next();
     }
