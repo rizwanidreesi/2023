@@ -83,7 +83,7 @@ const studentSchema = new mongoose.Schema(
     mobilenumber: {
       type: String,
     },
-    guadian: {
+    guardian: {
       type: [
         {
           id: String,
@@ -117,8 +117,19 @@ const studentSchema = new mongoose.Schema(
     },
     admin: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "admin",
-    //   required: true,
+      ref: "Admin",
+      required: true
+    },
+    withdraw: {
+      type: Boolean,
+      default: false,
+    },
+    withdrawDate: {
+      type: Date,
+    },
+    isSuspended: {
+      type: Boolean,
+      default: false,
     },
 
     resetPasswordToken: String,
