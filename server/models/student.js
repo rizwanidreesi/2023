@@ -46,24 +46,18 @@ const studentSchema = new mongoose.Schema(
       },
     },
     stPicture: {
-      public_id: {
-        type: String,
-      },
-      url: {
-        type: String,
-      },
+      public_id: String,
+      url: String,
     },
-    classLevels:{
-        type: String,
-        required: true,
-
+    classLevels: {
+      type: String,
+      required: true,
     },
     dateofBirth: {
       type: Date,
     },
     gender: {
       type: String,
-    
     },
     nationality: {
       type: String,
@@ -83,6 +77,9 @@ const studentSchema = new mongoose.Schema(
     mobilenumber: {
       type: String,
     },
+    whatsApp: {
+      type: String,
+    },
     guardian: {
       type: [
         {
@@ -93,23 +90,10 @@ const studentSchema = new mongoose.Schema(
           email: String,
           mobile: String,
           address: String,
-          lastname: String,
         },
       ],
     },
     health: {
-      type: String,
-    },
-    allege: {
-      type: String,
-    },
-    disease: {
-      type: String,
-    },
-    section: {
-      type: String,
-    },
-    division: {
       type: String,
     },
     lastLogin: {
@@ -118,9 +102,9 @@ const studentSchema = new mongoose.Schema(
     admin: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Admin",
-      required: true
+      required: true,
     },
-    withdraw: {
+    isWithdrawn: {
       type: Boolean,
       default: false,
     },
@@ -137,7 +121,7 @@ const studentSchema = new mongoose.Schema(
     active: {
       type: Boolean,
       default: true,
-      select: false,
+      // select: false,
     },
     createdAt: {
       type: Date,

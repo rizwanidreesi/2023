@@ -4,6 +4,7 @@ const ErrorHandler = require("../utils/errorHandler");
 const catchAsyncErrors = require("../middlewares/catchAsyncErrors");
 const sendToken = require("../utils/jwtToken");
 const sendEmail = require("../utils/sendEmail");
+const myEmail = require("../utils/myEmail");
 const crypto = require("crypto");
 
 const cloudinary = require("cloudinary");
@@ -11,15 +12,17 @@ const student = require("../models/student");
 
 // Register Admin - Post: /api/v1/admins/registerStudent
 exports.registerStudent = catchAsyncErrors(async (req, res, next) => {
-  // const result = await cloudinary.v2.uploader.upload(req.body.stPicture, {
-  //     folder: 'students',
-  //     width: 200,
-  //     crop: 'scale',
-  //     format: 'jpg',
+  // const result = await cloudinary.v2.uploader.upload(stPicture, {
+  //   folder: "students",
+  //   width: 200,
+  //   crop: "scale",
+  //   format: "jpg",
   // });
 
   req.body.admin = req.admin.id;
   const { name, classLevels, email, password } = req.body;
+
+  // const stPicture = req.files.stPicture.tempFilePath;
 
   const student = await Student.create({
     name,
@@ -27,14 +30,34 @@ exports.registerStudent = catchAsyncErrors(async (req, res, next) => {
     email,
     password,
     admin: req.admin._id,
-    // stPicture
+    // stPicture: {
+    //   public_id: result.public_id,
+    //   url: result.secure_url,
+    // },
   });
+  await myEmail(email, "Admission Confirmation : ", `${name} 
+  Thank You for Admission in Az-Zahid School & College. 
+  Your Student ID is: ${student.studentId} 
+  Profile:[
+
+    Name:  ${student.name}
+    Email: ${student.email}
+    Password: Your Father's CNIC
+    Class: ${student.classLevels}
+    Student ID: ${student.studentId}
+    Father Name: 
+    Guardian: ${[student.guardian]}
+
+  ] 
+  
+  ${[student]}`);
+
 
   sendToken(student, 200, res);
 });
 
 // Get all students by SuperAdmin & admin - GET = /api/v1/students/allStudents
-exports.getAllStudents = catchAsyncErrors(async (req, res, next) => { 
+exports.getAllStudents = catchAsyncErrors(async (req, res, next) => {
   const student = await Student.find();
   res.status(200).json({
     success: true,
@@ -80,6 +103,30 @@ exports.loginStudent = catchAsyncErrors(async (req, res, next) => {
 
   sendToken(student, 200, res);
 });
+
+// Get login student profile => /api/v1/students/profile
+exports.loginStudentProfile = catchAsyncErrors(async (req, res, next) => {
+   try {
+    // The authenticated student's email is available in req.user.email
+    const studentEmail = req.student.email;
+
+    // Find the student's profile in the database using the email
+    const student = await Student.findOne({ email: studentEmail });
+
+    if (!student) {
+      return res.status(404).json({ error: 'Student profile not found' });
+    }
+
+    // Return the student's profile
+    res.json(student);
+  } catch (err) {
+    // Handle any errors that occurred during the database query
+    res.status(500).json({ error: 'Internal server error' });
+  }
+
+  
+});
+
 
 // logout student - POST = /api/v1/students/logout
 exports.logoutStudent = catchAsyncErrors(async (req, res, next) => {
@@ -177,15 +224,13 @@ exports.getStudentByStId = catchAsyncErrors(async (req, res, next) => {
     success: true,
     student,
   });
-
-  
 });
 
 // Get student details by email by only admin /SuperAdmin  => api/v1/students/email/:studentEmail
 exports.getStudentByEmail = catchAsyncErrors(async (req, res, next) => {
   const studentEmail = req.params.email;
   // const student = await Student.findOne({ email: { $regex: new RegExp ('^' + studentEmail + '$', 'i')} });
-  const student = await Student.findOne({email: studentEmail}).limit(1);
+  const student = await Student.findOne({ email: studentEmail }).limit(1);
 
   if (!student || student.length === 0) {
     return next(
@@ -196,17 +241,16 @@ exports.getStudentByEmail = catchAsyncErrors(async (req, res, next) => {
     success: true,
     student,
   });
-  
-
 });
 
-// Get all students details by classLevels by only admin /SuperAdmin  => api/v1/students/classlevels
+// Get all students details by classLevels by only admin /SuperAdmin  => api/v1/students/class/:classlevels
 exports.getStudentByClass = catchAsyncErrors(async (req, res, next) => {
-
-  const studentCount = await Student.countDocuments() 
+  const studentCount = await Student.countDocuments();
 
   const studentClass = req.params.classLevels;
+
   const student = await Student.find({ classLevels: studentClass });
+
   const totalStudents = student.length;
 
   if (!student) {
@@ -220,6 +264,34 @@ exports.getStudentByClass = catchAsyncErrors(async (req, res, next) => {
     totalStudents,
     student,
   });
+});
+// Update a student PUT METHOD => /api/v1/students/student/:id
+exports.updateStudent = catchAsyncErrors(async (req, res, next) => {
+  const student = await Student.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+    runValidators: true,
+  });
 
-  
+  if (!student) {
+    return next(new ErrorHandler(404, "No student found"));
+  }
+
+  res.status(200).json({
+    success: true,
+    student,
+  });
+});
+
+// Delete a student => DELETE METHOD by admin and superAdmin => /api/v1/students/student:id
+exports.deleteStudent = catchAsyncErrors(async (req, res, next) => {
+  const student = await Student.findByIdAndDelete(req.params.id);
+
+  if (!student) {
+    return next(new ErrorHandler(404, "No student found"));
+  }
+
+  res.status(200).json({
+    success: true,
+    message: "Student deleted successfully",
+  });
 });
