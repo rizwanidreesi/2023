@@ -7,12 +7,14 @@ const sendEmail = require("../utils/sendEmail");
 const myEmail = require("../utils/myEmail");
 const crypto = require("crypto");
 
-const cloudinary = require("cloudinary");
-const student = require("../models/student");
+const cloudinary = require("cloudinary").v2;
+const fs = require("fs");
 
 // Register Admin - Post: /api/v1/admins/registerStudent
 exports.registerStudent = catchAsyncErrors(async (req, res, next) => {
-  // const result = await cloudinary.v2.uploader.upload(stPicture, {
+  // const stPicture = req.files.stPicture.tempFilePath;
+
+  // const result = await cloudinary.uploader.upload(stPicture.tempFilePath, {
   //   folder: "students",
   //   width: 200,
   //   crop: "scale",
@@ -22,7 +24,7 @@ exports.registerStudent = catchAsyncErrors(async (req, res, next) => {
   req.body.admin = req.admin.id;
   const { name, classLevels, email, password } = req.body;
 
-  // const stPicture = req.files.stPicture.tempFilePath;
+  // fs.rmSync("./tmp", { recursive: true });
 
   const student = await Student.create({
     name,
@@ -35,7 +37,10 @@ exports.registerStudent = catchAsyncErrors(async (req, res, next) => {
     //   url: result.secure_url,
     // },
   });
-  await myEmail(email, "Admission Confirmation : ", `${name} 
+  await myEmail(
+    email,
+    "Admission Confirmation : ",
+    `${name} 
   Thank You for Admission in Az-Zahid School & College. 
   Your Student ID is: ${student.studentId} 
   Profile:[
@@ -50,10 +55,15 @@ exports.registerStudent = catchAsyncErrors(async (req, res, next) => {
 
   ] 
   
-  ${[student]}`);
-
+  ${[]}
+  
+  `
+  );
 
   sendToken(student, 200, res);
+  // error
+
+
 });
 
 // Get all students by SuperAdmin & admin - GET = /api/v1/students/allStudents
@@ -106,7 +116,7 @@ exports.loginStudent = catchAsyncErrors(async (req, res, next) => {
 
 // Get login student profile => /api/v1/students/profile
 exports.loginStudentProfile = catchAsyncErrors(async (req, res, next) => {
-   try {
+  try {
     // The authenticated student's email is available in req.user.email
     const studentEmail = req.student.email;
 
@@ -114,19 +124,24 @@ exports.loginStudentProfile = catchAsyncErrors(async (req, res, next) => {
     const student = await Student.findOne({ email: studentEmail });
 
     if (!student) {
-      return res.status(404).json({ error: 'Student profile not found' });
+      return res.status(404).json({ error: "Student profile not found" });
     }
-
+    const studentProfile = {
+      studentID: student?.studentId,
+      name: student?.name,
+      email: student?.email,
+      class: student?.classLevels,
+      fatherName: student?.fatherName,
+      status: student?.active,
+      mobile: student?.mobile,
+    };
     // Return the student's profile
-    res.json(student);
+    res.json(studentProfile);
   } catch (err) {
     // Handle any errors that occurred during the database query
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ error: "Internal server error" });
   }
-
-  
 });
-
 
 // logout student - POST = /api/v1/students/logout
 exports.logoutStudent = catchAsyncErrors(async (req, res, next) => {

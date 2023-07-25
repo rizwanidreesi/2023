@@ -53,6 +53,14 @@ const studentSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    academicYear: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "AcademicYear",
+    },
+    dateAdmitted: {
+      type: Date,
+      default: Date.now,
+    },
     dateofBirth: {
       type: Date,
     },
@@ -78,6 +86,9 @@ const studentSchema = new mongoose.Schema(
       type: String,
     },
     whatsApp: {
+      type: String,
+    },
+    fname:{
       type: String,
     },
     guardian: {
@@ -112,6 +123,22 @@ const studentSchema = new mongoose.Schema(
       type: Date,
     },
     isSuspended: {
+      type: Boolean,
+      default: false,
+    },
+    examResults: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "ExamResult",
+      },
+    ],
+
+    program: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Program",
+    },
+
+    isPromoted: {
       type: Boolean,
       default: false,
     },
