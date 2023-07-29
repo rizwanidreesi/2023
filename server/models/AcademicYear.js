@@ -11,10 +11,12 @@ const academicYearSchema = new mongoose.Schema(
     fromYear: {
       type: Date,
       required: true,
+      // format: 'MM-YYYY',
     },
     toYear: {
       type: Date,
       required: true,
+      // format: 'MM-YYYY',
     },
     isCurrent: {
       type: Boolean,
@@ -45,6 +47,14 @@ const academicYearSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
+
+academicYearSchema.pre("save", async function (next) {
+  if (this.fromYear > this.toYear) {
+    const err = new Error('From Year must be less than or equal to the To Year.');
+    return next(err);
+  }
+  next();
+});
 
 //model
 module.exports =  mongoose.model("AcademicYear", academicYearSchema);

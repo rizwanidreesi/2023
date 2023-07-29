@@ -49,10 +49,12 @@ const studentSchema = new mongoose.Schema(
       public_id: String,
       url: String,
     },
-    classLevels: {
-      type: String,
-      required: true,
+    className: {
+      type: mongoose.Schema.Types.ObjectId, 
+      ref: 'ClassLevel', 
+      required: true ,
     },
+    
     academicYear: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "AcademicYear",

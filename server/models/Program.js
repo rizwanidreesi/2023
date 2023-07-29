@@ -33,7 +33,7 @@ const ProgramSchema = new mongoose.Schema(
     },
     createdBy: {
       type: Schema.Types.ObjectId,
-      ref: "Admin",
+      ref: "admin",
       required: true,
     },
     //we will push the teachers that are in charge of the program

@@ -4,10 +4,11 @@ const { Schema } = mongoose;
 
 const ClassLevelSchema = new mongoose.Schema(
   {
-    //level100/200/300/400
+    // 
     name: {
       type: String,
-      required: true,
+      required: [true, "Name of Class is required"],
+      unique: true,
     },
     description: {
       type: String,

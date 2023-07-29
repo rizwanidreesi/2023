@@ -4,15 +4,17 @@ const studentRouter = express.Router();
 const {
   registerStudent,
   getAllStudents,
+  getAllStudentsByApiFeature,
   getStudentDetails,
   getStudentByStId,
   loginStudent,
   logoutStudent,
   getStudentByEmail,
-  getStudentByClass,
   updateStudent,
   deleteStudent,
   loginStudentProfile,
+  getStudentByClassName,
+  getStudentByName,
 } = require("../controller/studentCtrl");
 
 const {
@@ -32,8 +34,9 @@ studentRouter
   );
 
 studentRouter.route("/login").post(loginStudent);
-studentRouter.route("/profile").get(isAuthenticatedStudent, loginStudentProfile);
-
+studentRouter
+  .route("/profile")
+  .get(isAuthenticatedStudent, loginStudentProfile);
 
 studentRouter
   .route("/allStudents")
@@ -41,6 +44,13 @@ studentRouter
     isAuthenticatedAdmin,
     authorizeRoles("superAdmin", "admin"),
     getAllStudents
+  );
+  studentRouter
+  .route("/byApiFeature")
+  .get(
+    isAuthenticatedAdmin,
+    authorizeRoles("superAdmin", "admin"),
+    getAllStudentsByApiFeature
   );
 studentRouter
   .route("/singleStudent/:id")
@@ -60,20 +70,32 @@ studentRouter
     getStudentByEmail
   );
 studentRouter
-  .route("/class/:classLevels")
+  .route("/:byName")
   .get(
     isAuthenticatedAdmin,
     authorizeRoles("superAdmin", "admin"),
-    getStudentByClass
+    getStudentByName
   );
 
-studentRouter
+  studentRouter
+  .route("/:className")
+  .get(
+    isAuthenticatedAdmin,
+    authorizeRoles("superAdmin", "admin"),
+    getStudentByClassName
+  );
+
+// update Student by id
+// 1
+  studentRouter
   .route("/student/:id")
   .put(
     isAuthenticatedAdmin,
     authorizeRoles("superAdmin", "admin"),
     updateStudent
   );
+
+  // delete Student by ID
 studentRouter
   .route("/student/:id")
   .delete(

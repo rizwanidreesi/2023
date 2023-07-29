@@ -1,4 +1,5 @@
 const Student = require("../models/student");
+const ClassLevel = require("../models/ClassLevel");
 
 const ErrorHandler = require("../utils/errorHandler");
 const catchAsyncErrors = require("../middlewares/catchAsyncErrors");
@@ -6,6 +7,7 @@ const sendToken = require("../utils/jwtToken");
 const sendEmail = require("../utils/sendEmail");
 const myEmail = require("../utils/myEmail");
 const crypto = require("crypto");
+const APIFeatures = require("../utils/apiFeatures");
 
 const cloudinary = require("cloudinary").v2;
 const fs = require("fs");
@@ -22,13 +24,18 @@ exports.registerStudent = catchAsyncErrors(async (req, res, next) => {
   // });
 
   req.body.admin = req.admin.id;
-  const { name, classLevels, email, password } = req.body;
+  const { name, className, email, password } = req.body;
+
+  const classLevel = await ClassLevel.findOne({ name: className });
+  if (!classLevel) {
+    return res.status(404).json({ error: "Class level not found" });
+  }
 
   // fs.rmSync("./tmp", { recursive: true });
 
   const student = await Student.create({
     name,
-    classLevels,
+    className: classLevel._id,
     email,
     password,
     admin: req.admin._id,
@@ -62,8 +69,6 @@ exports.registerStudent = catchAsyncErrors(async (req, res, next) => {
 
   sendToken(student, 200, res);
   // error
-
-
 });
 
 // Get all students by SuperAdmin & admin - GET = /api/v1/students/allStudents
@@ -75,6 +80,26 @@ exports.getAllStudents = catchAsyncErrors(async (req, res, next) => {
     data: student,
   });
 });
+
+// Get all students by SuperAdmin & admin - GET = /api/v1/students/allStudents
+exports.getAllStudentsByApiFeature = catchAsyncErrors(async (req, res, next) => {
+
+  const resPerPage = 40;
+  const studentCount = await Student.countDocuments();
+  // const student = await Student.find();
+  const apiFeatures = new APIFeatures(Student.find(), req.query)
+    .search()
+    .filter()
+    .pagination(resPerPage);
+  const students = await apiFeatures.query; 
+
+  res.status(200).json({
+    success: true,
+    studentCount,
+    students,
+  });
+});
+
 
 // Get student details by id by admin / SuperAdmin  => api/v1/students/singleStudent/:id
 exports.getStudentDetails = catchAsyncErrors(async (req, res, next) => {
@@ -130,7 +155,7 @@ exports.loginStudentProfile = catchAsyncErrors(async (req, res, next) => {
       studentID: student?.studentId,
       name: student?.name,
       email: student?.email,
-      class: student?.classLevels,
+      class: student?.className,
       fatherName: student?.fatherName,
       status: student?.active,
       mobile: student?.mobile,
@@ -259,27 +284,52 @@ exports.getStudentByEmail = catchAsyncErrors(async (req, res, next) => {
 });
 
 // Get all students details by classLevels by only admin /SuperAdmin  => api/v1/students/class/:classlevels
-exports.getStudentByClass = catchAsyncErrors(async (req, res, next) => {
-  const studentCount = await Student.countDocuments();
-
-  const studentClass = req.params.classLevels;
-
-  const student = await Student.find({ classLevels: studentClass });
-
-  const totalStudents = student.length;
+exports.getStudentByName = catchAsyncErrors(async (req, res, next) => {
+  const studentName = req.params.name;
+  const student = await Student.find({ name: studentName });
 
   if (!student) {
     return next(
-      new ErrorHandler(`Student not found with StudentId: ${req.params}`, 404)
+      new ErrorHandler(
+        `Student not found with Student Name: ${req.params}`,
+        404
+      )
     );
   }
   res.status(200).json({
     success: true,
-    studentCount,
-    totalStudents,
     student,
   });
 });
+
+// Get all students details by className by only admin /SuperAdmin  => api/v1/students/class/:classname
+exports.getStudentByClassName = catchAsyncErrors(async (req, res, next) => {
+  try {
+    const className = req.params.className;
+    const studentCount = await Student.countDocuments();
+
+    // Find the class in the ClassLevel model
+    const classData = await ClassLevel.findOne({ name: className });
+
+    if (!classData) {
+      return res.status(404).json({ error: "Class not found" });
+    }
+
+    // Find all students belonging to the class
+    const students = await Student.find({ className: classData._id });
+    const totalStudents = students.length;
+
+    return res.status(200).json({
+      studentCount,
+      totalStudents,
+      students,
+    });
+  } catch (err) {
+    console.error("Error fetching student records:", err);
+    return res.status(500).json({ error: "Something went wrong" });
+  }
+});
+
 // Update a student PUT METHOD => /api/v1/students/student/:id
 exports.updateStudent = catchAsyncErrors(async (req, res, next) => {
   const student = await Student.findByIdAndUpdate(req.params.id, req.body, {

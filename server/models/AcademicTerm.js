@@ -4,7 +4,10 @@ const academicTermSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: true,
+      required: [true, "Academic Term Name is required"],
+      trim: true,
+      unique: true,
+      maxlength: [10, "Name must be less than 10 characters"],
     },
     description: {
       type: String,
