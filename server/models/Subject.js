@@ -11,16 +11,16 @@ const subjectSchema = new mongoose.Schema(
       required: true,
     },
     teacher: {
-      type: Schema.Types.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "Teacher",
     },
     academicTerm: {
-      type: Schema.Types.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "AcademicTerm",
       required: true,
     },
     createdBy: {
-      type: Schema.Types.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "Admin",
       required: true,
     },

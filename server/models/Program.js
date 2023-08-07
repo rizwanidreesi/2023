@@ -32,20 +32,20 @@ const ProgramSchema = new mongoose.Schema(
       },
     },
     createdBy: {
-      type: Schema.Types.ObjectId,
-      ref: "admin",
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Admin",
       required: true,
     },
     //we will push the teachers that are in charge of the program
     teachers: [
       {
-        type: Schema.Types.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: "Teacher",
       },
     ],
     students: [
       {
-        type: Schema.Types.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: "Student",
         default: [],
       },
@@ -53,7 +53,7 @@ const ProgramSchema = new mongoose.Schema(
     //we will push the subjects that are in the program when the program is created
     subjects: [
       {
-        type: Schema.Types.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: "Subject",
         default: [],
       },

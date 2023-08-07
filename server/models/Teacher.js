@@ -73,8 +73,8 @@ const teacherSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      default: "teacher",
       enum: ["teacher", "sectionHead", "vPrincipal", "principal", "accountant"],
+      default: "teacher",
     },
     subject: {
       type: mongoose.Schema.Types.ObjectId,

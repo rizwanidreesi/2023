@@ -12,6 +12,12 @@ exports.createAcademicTerm = catchAsyncErrors(async (req, res, next) => {
 
   const { name, description, duration } = req.body;
 
+  const academicTerm = await AcademicTerm.findOne({ name });
+  if (academicTerm) {
+    throw new Error("Academic Term already exists");
+  }
+  //create
+
   const academicTermCreated = await AcademicTerm.create({
     name,
     description,
@@ -21,6 +27,7 @@ exports.createAcademicTerm = catchAsyncErrors(async (req, res, next) => {
 
   const admin = await Admin.findById(req.admin._id);
   admin.academicTerms.push(academicTermCreated._id);
+  await admin.save();
   res.status(201).json({
     status: "success",
     message: "Academic term created successfully",

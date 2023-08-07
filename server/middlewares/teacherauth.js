@@ -12,15 +12,15 @@ exports.isAuthenticatedTeacher = catchAsyncErrors(async (req, res, next) => {
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.Teacher = await Teacher.findById(decoded.id);
+    req.teacher = await Teacher.findById(decoded.id);
     next();
 });
 
 // Handling student roles
-exports.authorizeRoles = (...roles) => {
+exports.authorizeEmp = (...roles) => {
     return (req, res, next) => {
-        if (!roles.includes(req.Teacher.role)) {
-            return next(new ErrorHandler(`You are not (${req.Teacher.role}) authorized to access this resource.`, 403));
+        if (!roles.includes(req.teacher.role)) {
+            return next(new ErrorHandler(`You are not (${req.teacher.role}) authorized to access this resource.`, 403));
         }
         next();
     }

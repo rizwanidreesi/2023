@@ -29,7 +29,7 @@ adminRouter
   .put(isAuthenticatedAdmin, authorizeRoles("superAdmin"), updateAdmin);
 
 
-adminRouter.route("/me").get(getAdminProfile);
+adminRouter.route("/me").get(isAuthenticatedAdmin, getAdminProfile);
 adminRouter
   .route("/all")
   .get(isAuthenticatedAdmin, authorizeRoles("superAdmin"), getAllAdmin);
