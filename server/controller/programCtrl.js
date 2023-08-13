@@ -11,6 +11,7 @@ const catchAsyncErrors = require("../middlewares/catchAsyncErrors");
 //@acess  Private
 
 exports.createProgram = catchAsyncErrors(async (req, res, next) => {
+  req.body.admin = req.admin.id;
   const { name, description } = req.body;
   //check if exists
   const programFound = await Program.findOne({ name });

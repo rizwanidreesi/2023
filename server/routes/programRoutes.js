@@ -21,6 +21,6 @@ programRoutes.route("/byId/:id").get(isAuthenticatedAdmin, getSingleProgram);
 programRoutes.route("/byId/:id").put(isAuthenticatedAdmin, updateProgram);
 programRoutes.route("/byId/:id").delete(isAuthenticatedAdmin, deleteProgram);
 
-// programRoutes.route("/:id/subjects").put(isAuthenticatedAdmin, addSubjectToProgram);
+programRoutes.route("/:id/subjects").put(isAuthenticatedAdmin, addSubjectToProgram);
 
 module.exports = programRoutes;

@@ -6,13 +6,26 @@ const ErrorHandler = require("../utils/errorHandler");
 const catchAsyncErrors = require("../middlewares/catchAsyncErrors");
 
 
-// Subject Created By Admin only: Post Method: /api/v1/subject/create
+// Subject Created By Admin only: Post Method: /api/v1/subject/:programID
+
 exports.createSubject = catchAsyncErrors(async (req, res, next) => {
   
   req.body.admin = req.admin.id;
 
   const { name, description,academicTerm } = req.body;
-
+  // find the program
+  const programFound = await Program.findById(req.params.programID);
+  if (!programFound) {
+    throw new Error("Program  not found");
+  }
+  
+  //check if exists
+  const subjectFound = await Subject.findOne({ name });
+  if (subjectFound) {
+    throw new Error("Subject  already exists");
+  }
+  
+  //create
   const subjectCreated = await Subject.create({
     name,
     description,
@@ -20,8 +33,11 @@ exports.createSubject = catchAsyncErrors(async (req, res, next) => {
     createdBy: req.admin._id,
   });
 
-//   const admin = await Admin.findById(req.admin._id);
-//   admin.academicTerms.push(academicTermCreated._id);
+  // //push to the program
+  programFound.subjects.push(subjectCreated._id);
+  // //save
+  await programFound.save();
+
   res.status(201).json({
     status: "success",
     message: "Academic term created successfully",
@@ -29,23 +45,24 @@ exports.createSubject = catchAsyncErrors(async (req, res, next) => {
   });
 });
 
-//@desc  get all Academic terms
-//@route GET /api/v1/academic-terms
+//@desc  get all Subjects
+//@route GET /api/v1/subject/all-subjects
 //@acess  Private
 exports.getSubjects = catchAsyncErrors(async (req, res, next) => {
-  const classes = await Subject.find();
+  const subject = await Subject.find();
 
   res.status(201).json({
     status: "success",
     message: "All Subjects fetched successfully",
-    data: classes,
+    count:subject.length,
+    data: subject,
   });
 });
 
-//@desc  get single Academic term
-//@route GET /api/v1/academic-terms/:id
+//@desc  get single Subject
+//@route GET /api/v1/subject/:id
 //@acess  Private
-exports.getSubject = catchAsyncErrors(async (req, res, next) => {
+exports.getSingleSubject = catchAsyncErrors(async (req, res, next) => {
   const subject = await Subject.findById(req.params.id);
 
   if (!subject) {
@@ -61,8 +78,8 @@ exports.getSubject = catchAsyncErrors(async (req, res, next) => {
   });
 });
 
-//@desc   Update  Academic term
-//@route  PUT /api/v1/academic-terms/:id
+//@desc   Update  Subject
+//@route  PUT /api/v1/subject/:id
 //@acess  Private
 exports.updateSubject = catchAsyncErrors(async (req, res, next) => {
   // const { name, description, duration } = req.body;
@@ -92,6 +109,10 @@ exports.updateSubject = catchAsyncErrors(async (req, res, next) => {
 //@acess  Private
 exports.deleteSubject = catchAsyncErrors(async (req, res, next) => {
   await Subject.findByIdAndDelete(req.params.id);
+  
+  if (!Subject) {
+    return next(new ErrorHandler(404, "No Subject found"));
+  }
 
   res.status(201).json({
     status: "success",

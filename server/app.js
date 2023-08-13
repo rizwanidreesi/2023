@@ -20,6 +20,8 @@ const classLevelRouter = require('./routes/classLevelRoutes');
 const academicYearRouter = require('./routes/academicYearRoutes');
 const academicTermRouter = require('./routes/academicTermRoutes');
 const programRouter = require('./routes/programRoutes');
+const subjectRouter = require('./routes/subjectRoutes');
+const groupRouter = require('./routes/groupRoutes');
 const studentRouter = require('./routes/studentRoutes');
 const teacherRouter = require('./routes/teacherRoutes');
 
@@ -31,6 +33,8 @@ app.use('/api/v1/academic-year', academicYearRouter);
 app.use('/api/v1/academic-term', academicTermRouter);
 app.use('/api/v1/classlevel', classLevelRouter);
 app.use('/api/v1/programs', programRouter);
+app.use('/api/v1/subjects', subjectRouter);
+app.use('/api/v1/groups', groupRouter);
 app.use('/api/v1/students', studentRouter);
 app.use('/api/v1/teachers', teacherRouter);
 
