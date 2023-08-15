@@ -16,7 +16,7 @@ exports.isAuthenticatedTeacher = catchAsyncErrors(async (req, res, next) => {
     next();
 });
 
-// Handling student roles
+// Handling teacher roles
 exports.authorizeEmp = (...roles) => {
     return (req, res, next) => {
         if (!roles.includes(req.teacher.role)) {

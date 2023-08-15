@@ -1,4 +1,5 @@
 const Teacher = require("../models/Teacher");
+const Admin = require("../models/admin");
 
 const ErrorHandler = require("../utils/errorHandler");
 const catchAsyncErrors = require("../middlewares/catchAsyncErrors");
@@ -32,12 +33,16 @@ exports.createTeacher = catchAsyncErrors(async (req, res, next) => {
     // },
   });
 
+  const admin = await Admin.findById(req.admin._id);
+  admin.teachers.push(teacher._id);
+  await admin.save();
+
   await myEmail(
     email,
-    "Job Confirmation : ",
+    "Job Confirmation Email : ",
     `${name} 
-    you are hired as Teacher in Az-Zahid School & College. 
-    Your Teacher ID is: ${teacher.studentId} 
+    Congratulations! you are hired as ${teacher.designation} in Az-Zahid School & College. 
+    Your Teacher ID is: ${teacher.teacherId} 
     Profile:[
   
       Name:  ${teacher.name}
@@ -171,6 +176,14 @@ exports.loginTeacher = catchAsyncErrors(async (req, res, next) => {
     return next(new ErrorHandler("Incorrect email or password", 401));
   }
 
+  if (teacher.isWithdrawn){
+    return next(new ErrorHandler("Action denied teacher is Withdraw", 401));
+  }
+
+  if (teacher.isSuspended){
+    return next(new ErrorHandler("Action denied teacher is Suspended", 401));
+  }
+
   sendToken(teacher, 200, res);
 });
 
@@ -195,7 +208,7 @@ exports.loginTeacherProfile = catchAsyncErrors(async (req, res, next) => {
 
     };
     // Return the student's profile
-    res.json(teacherProfile);
+    res.json(teacher);
   } catch (err) {
     // Handle any errors that occurred during the database query
     res.status(500).json({ error: "Internal server error" });

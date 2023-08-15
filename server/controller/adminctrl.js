@@ -60,6 +60,8 @@ exports.getAdminProfile = catchAsyncErrors(async (req, res, next) => {
       .populate("classLevels")
       .populate("programs")
       .populate("yearGroups")
+      .populate("teachers")
+
 
 
 

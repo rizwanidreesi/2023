@@ -29,8 +29,7 @@ const teacherSchema = new mongoose.Schema(
     cnic: {
       type: Number,
       required: [true, "CNIC is required"],
-      minlength: [14, "CNIC must be of 14 Numbers"],
-      maxlength: [14, "CNIC must be of 14 Numbers"],
+      length:[14, "CNIC must be of 14 Numbers"],
       unique: true,
     },
     fatherName: {

@@ -78,6 +78,8 @@ teacherRouter
 
 // login Teachers
 teacherRouter.route("/login").post(loginTeacher);
+
+// Login Teacher Can See his / her profile
 teacherRouter.route("/profile").get(isAuthenticatedTeacher, loginTeacherProfile);
 
 
